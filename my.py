@@ -61,16 +61,14 @@ def purchase_flow(): #自訂函式＿購買程序：列出場次並購票
     }]
     return Movie_time_list #函式內的變數不會自動傳回到外面，故需要回傳 #不建議用gobal，因為函式依賴外部狀態，修改全域變數可能影響程式其他地方，容易出錯。
 Movie_time_list = purchase_flow() #是把函式回傳的資料「拿出來」存成變數。
-for movie in Movie_time_list： #設變數movie為卡片（Movie_time_list裡，有幾個就執行幾次迴圈）
+for movie in Movie_time_list: #設變數movie為卡片（Movie_time_list裡，有幾個就執行幾次迴圈）
     print(f"編號: {movie['id']}, 電影: {movie['movie']}, 時間: {movie['time']}, 價格: {movie['price']}") #因為Movie_time_list 串列，電影一的資料是用字典故可以取出用f{“key"}
 
 #請使用者輸入電影編號，輸出可以選得座位
 movie_number = int(input("購票系統＿請輸入想購買的電影編號"))
-status = (movie_number-1, Movie_time_list)['seats']
-for movie in Movie_time_list： #設變數movie為卡片（Movie_time_list裡，有幾個就執行幾次迴圈）
-    print(f"編號: {movie['id']}, 電影: {movie['movie']}, 時間: {movie['time']}, 價格: {movie['price']}")
+
 for seat, available in movie['seats'].items():
-    status = "可選" if available else "已售出"
+    status = "可選"if available == True else "已售出"
     print(f"  {seat}: {status}")
     
 
