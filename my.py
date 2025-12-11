@@ -6,7 +6,7 @@
 #3. 列出場次並購票 (purchase_flow()) (OK)
 #4. 顯示簡單報表 (simple_reports())
 #5. 計算票價（看年齡分價制） (ok)
-#6. 交易紀錄（暫存在記憶體）
+#6. 交易紀錄（暫存在記憶體） (ok)
 import datetime
 TRANSACTIONS = []
 
@@ -98,6 +98,7 @@ def choose_seats(movie):
         # .lower() 確保使用者輸入 Y 或 y 都能被接受
         if confirm == 'y':
         # 執行折扣選擇和購票流程 ＃為了讓使用者能輸入編號故在字典內增加tuple
+            movie["seats"][buy_seat] = False #確定購買 → 修改座位狀態
             discount_identity_dict = {
                 '1': ("學生", 0.8),  
                 '2': ("早鳥", 0.7), 
@@ -111,13 +112,13 @@ def choose_seats(movie):
             if identity_choice in discount_identity_dict:
                 identity_name, discount_rate = discount_identity_dict[identity_choice] #指定變數優惠身份和優惠率=所輸入的key的valure
                 price = movie['price'] * discount_rate
-                print(f"\n 購票確認：應用 {identity_name} 優惠 ({int(discount_rate*10)}折)，最終票價為 {price} 元。")
+                print(f"\n===購票確認：應用 {identity_name} 優惠 ({int(discount_rate*10)}折)，最終票價為 {price} 元。===")
 
                 transaction_record = {
-                "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), #strftime("%Y-%m-%d %H:%M:%S")確保了每筆交易記錄的時間格式都是一致且易於排序的
                 "movie": movie["movie"],
                 "seat": buy_seat,
-                "discount(%)": int(discount_rate*10),
+                "discount": f"{int(discount_rate*10)}折",
                 "final_price": price, # 必須使用計算出來的最終價格
                 "identity": identity_name # 儲存使用的折扣身份
                  }
@@ -132,23 +133,34 @@ def choose_seats(movie):
         else:
             print("購票已取消。")
         
-    # 4. 成功購買 → 修改座位狀態
-    movie["seats"][buy_seat] = False
+
 
 
 def all_change():
-    print("報表列印及電影現況")
-    for index, transaction in enumerate(TRANSACTIONS):  #有做更改
-        print(f"\n======== 第 {index + 1} 筆交易 ========")
-        for key, value in transaction.items():
-            print(f"{key:<15}： {value}") #為什麼要<15:確保 Key 佔據至少 15 個字符寬度，讓輸出報表看起來整齊
-    for seat, available in Movie_time_list['seats'].items():
-        status = "可購買" if available else "已售出"
-        print(f"{seat}: {status}")
+
+    print("\n報表列印: \n")
+    if not TRANSACTIONS:
+        print("今日尚無交易")
+    else:
+        sum_price = 0 #初始化
+        for index, transaction in enumerate(TRANSACTIONS):  #有做更改 #解釋emumerate():這個函式的作用是讓迴圈在遍歷 TRANSACTIONS 時，同時產生兩個值：index(索引), transaction（內部字典）
+            print(f"\n======== 第 {index + 1} 筆交易 ========")
+            for key, value in transaction.items():
+                print(f"{key:<15}： {value}") #為什麼要<15:確保 Key 佔據至少 15 個字符寬度，讓輸出報表看起來整齊
+            sum_price += int(transaction['final_price'])
+    print(f"\n總交易金額： {sum_price}\n")   
+    print("*"*15)
+    print("\n電影座位現況: \n")
+    for m in Movie_time_list: # m 不再是串列，它已經是串列裡面的一個字典了，再去字典內找[seat]
+            print(f"電影： {m['movie']}")
+            for seat, available in m['seats'].items():
+                status = "可購買" if available else "已售出"
+                print(f"{seat}: {status}")
+            
     
     
 
-#主要程式
+#設主要程式函式
 movies = Movie_time_list #變為全區變數
 
 def main():
@@ -193,7 +205,7 @@ def main():
             break
         else:
             print("無效選項，請重新輸入。")
-
+#執行程式
 main()
 
 
