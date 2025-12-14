@@ -39,7 +39,8 @@ Movie_time_list =  [
         "rating": "R",        # <-- 新增：限制級 (18 歲以上)
         "seating_type": "assigned" ,# <-- 新增：對號入座
         "seats": {
-            "A1": True
+            "A1": True,
+            "A2": True
             }
     },
     {
@@ -91,30 +92,33 @@ def choose_seats(movie):
         print("\n座位狀態： ")
         #使用 if / elif / else 時，程式認為這些條件是互斥的（mutually exclusive），即：只有一個條件會被執行。
         #使用if 是因為：如果發生錯誤，就立即退出；否則，繼續執行下一條檢查」。這些檢查不是互斥的，它們是連續的、必須按順序通過的關卡。
-        if seats_remaining <= 0:
-            print("❌ 目前電影座位已售空。")
-            return
+        
+        # 自由座的 try 區塊後，邏輯沒有連貫，導致輸入張數後，程式會直接退出，無法執行年齡判斷。這是因為 try/except 區塊並沒有告訴程式下一步該怎麼做 ＿L3 修正：將所有輸入和檢查放在一個 try/except 區塊內，並使用 if-return 模式
+        try: 
+            num_tickets = int(input(f"該場為自由座，目前尚餘 {seats_remaining} 個座位。請輸入購買張數：").strip())
+            
+            # 檢查購買張數是否有效
+            if num_tickets <= 0:
+                print("❌ 購買張數必須大於零。")
+                return
+            
+            if num_tickets > seats_remaining:
+                print(f"❌ 剩餘票數不足，最多只能購買 {seats_remaining} 張。")
+                return
+                
+            # L2 修正：成功獲取張數後，為 buy_seat 賦予描述性字串
+            buy_seat = f"自由座 ({num_tickets} 張)" 
+            print(f"✅ 確認購買 {num_tickets} 張，進入年齡確認。")
 
-        try:
-            num_tickets = int(input("請輸入購買張數：").strip())
         except ValueError:
             print("❌ 輸入格式錯誤，請輸入數字。")
             return
-            
-        # 檢查購買張數是否有效
-        if num_tickets <= 0:
-            print("❌ 購買張數必須大於零。")
-            return
-        
-        if num_tickets > seats_remaining:
-            print(f"❌ 剩餘票數不足，最多只能購買 {seats_remaining} 張。")
-            return
-        
     else:
-            print("❌ 輸入格式錯誤。") #ai幫助思考更細
-            return
-           
-
+        # 如果電影數據設定了無效的 seating_type
+        print("❌ 系統錯誤：無效的入座方式設定。")
+        return
+    
+        
 
 
     # 3. 年齡判斷
@@ -177,9 +181,13 @@ def choose_seats(movie):
 
 
                 return identity_name, discount_rate
+            else:
+                print("無效的優惠身份編號，購票已取消")
+                print("\n回到主選單")
         else:
             print("購票已取消。")
             print("\n回到主選單")
+    return 
         
 
 
